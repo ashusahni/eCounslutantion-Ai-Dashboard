@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eConsultation AI Dashboard</title>
+    <link rel="stylesheet" href="static/css/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>Loading Dashboard...</h2>
+            <p>Preparing your AI-powered consultation analysis</p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-brain"></i>
+                        <span>Nexus Ai</span>
+                    </div>
+                    <p class="tagline">your words, our insights </p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="helpBtn">
+                        <i class="fas fa-question-circle"></i>
+                        Help
+                    </button>
+                    <button class="btn btn-primary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1>AI-Powered Consultation Analysis</h1>
+                    <p>Upload consultation data and get instant insights with sentiment analysis, intent classification, and interactive visualizations.</p>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-number" id="totalComments">0</span>
+                            <span class="stat-label">Total Comments</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-number" id="analyzedComments">0</span>
+                            <span class="stat-label">Analyzed</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-number" id="totalClauses">0</span>
+                            <span class="stat-label">Clauses</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Input Section -->
+            <section class="data-input-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-upload"></i> Data Input</h2>
+                    <p>Upload your consultation data via text input or CSV file</p>
+                </div>
+                
+                <div class="input-cards">
+                    <!-- Text Input Card -->
+                    <div class="input-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-edit"></i> Text Input</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon" id="clearTextBtn" title="Clear text">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="input-group">
+                                <label for="bulkText">Enter comments (one per line)</label>
+                                <textarea 
+                                    id="bulkText" 
+                                    rows="8" 
+                                    placeholder="Enter your consultation comments here...&#10;Use ::ClauseName to tag specific clauses&#10;Example: This is a great proposal ::Clause 7"
+                                ></textarea>
+                                <div class="input-footer">
+                                    <span class="char-count" id="charCount">0 characters</span>
+                                    <span class="line-count" id="lineCount">0 lines</span>
+                                </div>
+                            </div>
+                            <div class="input-actions">
+                                <button class="btn btn-primary" id="ingestBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Ingest Comments
+                                </button>
+                                <span class="status-message" id="uploadMsg"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CSV Upload Card -->
+                    <div class="input-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-file-csv"></i> CSV Upload</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon" id="downloadTemplateBtn" title="Download template">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <h4>Drop CSV file here or click to browse</h4>
+                                    <p>Supports: Comment, Clause, Date columns</p>
+                                    <input type="file" id="csvFile" accept=".csv" hidden>
+                                </div>
+                            </div>
+                            <div class="upload-actions">
+                                <button class="btn btn-secondary" id="csvBtn" disabled>
+                                    <i class="fas fa-upload"></i>
+                                    Upload CSV
+                                </button>
+                                <span class="status-message" id="csvMsg"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section class="analysis-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-robot"></i> AI Analysis</h2>
+                    <p>Run AI-powered analysis on your consultation data</p>
+                </div>
+                
+                <div class="analysis-controls">
+                    <button class="btn btn-success btn-large" id="analyzeBtn">
+                        <i class="fas fa-play"></i>
+                        Run Analysis
+                    </button>
+                    <button class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i>
+                        Clear All Data
+                    </button>
+                    <div class="analysis-status">
+                        <span class="status-message" id="analyzeMsg"></span>
+                        <span class="status-message" id="clearMsg"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Dashboard -->
+            <section class="analytics-section">
+                <div class="analytics-header">
+                    <div class="header-content">
+                        <div class="title-section">
+                            <h2 class="analytics-title">
+                                <span class="title-icon">📊</span>
+                                Analytics Dashboard
+                            </h2>
+                            <p class="analytics-subtitle">AI-powered insights and interactive visualizations</p>
+                        </div>
+                        <div class="analytics-controls">
+                            <div class="control-group">
+                                <label for="clauseSelect" class="control-label">Filter by Clause</label>
+                                <select id="clauseSelect" class="clause-selector">
+                                    <option value="">All Clauses</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-outline" id="exportAnalyticsBtn">
+                                <i class="fas fa-download"></i>
+                                Export All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-dashboard">
+                    <!-- Top Row: Key Metrics -->
+                    <div class="metrics-row">
+                        <div class="metric-card sentiment-metric">
+                            <div class="metric-header">
+                                <div class="metric-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <h3>Sentiment Analysis</h3>
+                                    <p>Overall emotional tone</p>
+                                </div>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="sentimentChart"></canvas>
+                            </div>
+                            <div class="metric-summary">
+                                <span class="summary-text">Distribution of sentiment across all comments</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card intent-metric">
+                            <div class="metric-header">
+                                <div class="metric-icon">
+                                    <i class="fas fa-target"></i>
+                                </div>
+                                <div class="metric-info">
+                                    <h3>Intent Classification</h3>
+                                    <p>User intent patterns</p>
+                                </div>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="intentChart"></canvas>
+                            </div>
+                            <div class="metric-summary">
+                                <span class="summary-text">Intent distribution for selected clause</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row: Word Cloud -->
+                    <div class="wordcloud-row">
+                        <div class="wordcloud-card">
+                            <div class="wordcloud-header">
+                                <div class="wordcloud-title">
+                                    <div class="title-icon">
+                                        <i class="fas fa-cloud"></i>
+                                    </div>
+                                    <div class="title-content">
+                                        <h3>Word Cloud Visualization</h3>
+                                        <p>Most frequently mentioned terms</p>
+                                    </div>
+                                </div>
+                                <div class="wordcloud-actions">
+                                    <button class="btn btn-icon" id="refreshWordCloudBtn" title="Refresh word cloud">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                    <button class="btn btn-icon" id="exportWordCloudBtn" title="Export word cloud">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="wordcloud-content">
+                                <div class="wordcloud-container">
+                                    <img id="wordCloudImg" src="" alt="Word Cloud" style="display: none;">
+                                    <div class="wordcloud-placeholder" id="wordCloudPlaceholder">
+                                        <div class="placeholder-icon">
+                                            <i class="fas fa-cloud-rain"></i>
+                                        </div>
+                                        <div class="placeholder-text">
+                                            <h4>No Word Cloud Available</h4>
+                                            <p>Run analysis to generate word cloud visualization</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insights Row -->
+                    <div class="insights-row">
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <i class="fas fa-lightbulb"></i>
+                                <h3>Key Insights</h3>
+                            </div>
+                            <div class="insight-content">
+                                <div class="insight-item">
+                                    <div class="insight-icon positive">
+                                        <i class="fas fa-thumbs-up"></i>
+                                    </div>
+                                    <div class="insight-text">
+                                        <span class="insight-label">Positive Feedback</span>
+                                        <span class="insight-value" id="positiveInsight">0%</span>
+                                    </div>
+                                </div>
+                                <div class="insight-item">
+                                    <div class="insight-icon negative">
+                                        <i class="fas fa-thumbs-down"></i>
+                                    </div>
+                                    <div class="insight-text">
+                                        <span class="insight-label">Negative Feedback</span>
+                                        <span class="insight-value" id="negativeInsight">0%</span>
+                                    </div>
+                                </div>
+                                <div class="insight-item">
+                                    <div class="insight-icon neutral">
+                                        <i class="fas fa-minus"></i>
+                                    </div>
+                                    <div class="insight-text">
+                                        <span class="insight-label">Neutral Feedback</span>
+                                        <span class="insight-value" id="neutralInsight">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <i class="fas fa-chart-line"></i>
+                                <h3>Trend Analysis</h3>
+                            </div>
+                            <div class="insight-content">
+                                <div class="trend-item">
+                                    <div class="trend-icon">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </div>
+                                    <div class="trend-text">
+                                        <span class="trend-label">Most Common Intent</span>
+                                        <span class="trend-value" id="commonIntent">-</span>
+                                    </div>
+                                </div>
+                                <div class="trend-item">
+                                    <div class="trend-icon">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                    <div class="trend-text">
+                                        <span class="trend-label">Total Comments</span>
+                                        <span class="trend-value" id="totalCommentsCount">0</span>
+                                    </div>
+                                </div>
+                                <div class="trend-item">
+                                    <div class="trend-icon">
+                                        <i class="fas fa-tags"></i>
+                                    </div>
+                                    <div class="trend-text">
+                                        <span class="trend-label">Active Clauses</span>
+                                        <span class="trend-value" id="activeClauses">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comments Management -->
+            <section class="comments-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-comments"></i> Comments Management</h2>
+                    <p>View, search, and manage all consultation comments</p>
+                </div>
+
+                <div class="comments-controls">
+                    <div class="search-container">
+                        <div class="search-input-group">
+                            <i class="fas fa-search"></i>
+                            <input 
+                                type="text" 
+                                id="searchInput" 
+                                placeholder="Search comments... (e.g., 'clause 7 negative comments')"
+                            >
+                            <button class="btn-icon" id="clearSearchBtn" title="Clear search">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="search-info" id="searchInfo"></div>
+                    </div>
+                    
+                    <div class="filter-controls">
+                        <select id="sentimentFilter" class="filter-select">
+                            <option value="">All Sentiments</option>
+                            <option value="positive">Positive</option>
+                            <option value="negative">Negative</option>
+                            <option value="neutral">Neutral</option>
+                        </select>
+                        <select id="intentFilter" class="filter-select">
+                            <option value="">All Intents</option>
+                            <option value="AGREE">Agree</option>
+                            <option value="DISAGREE">Disagree</option>
+                            <option value="SUGGEST_CHANGE">Suggest Change</option>
+                            <option value="REQUEST_CLARIFICATION">Request Clarification</option>
+                            <option value="CLAUSE_FEEDBACK">Clause Feedback</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="comments-container">
+                    <div class="comments-header">
+                        <div class="comments-info">
+                            <span id="commentsInfo">Showing 0 comments</span>
+                            <div class="view-toggle">
+                                <button class="btn-icon active" id="cardViewBtn" title="Card view">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="btn-icon" id="tableViewBtn" title="Table view">
+                                    <i class="fas fa-table"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="comments-actions">
+                            <div class="pagination-controls">
+                                <button class="btn-icon" id="firstPageBtn" title="First page" disabled>
+                                    <i class="fas fa-angle-double-left"></i>
+                                </button>
+                                <button class="btn-icon" id="prevPageBtn" title="Previous page" disabled>
+                                    <i class="fas fa-angle-left"></i>
+                                </button>
+                                <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                                <button class="btn-icon" id="nextPageBtn" title="Next page" disabled>
+                                    <i class="fas fa-angle-right"></i>
+                                </button>
+                                <button class="btn-icon" id="lastPageBtn" title="Last page" disabled>
+                                    <i class="fas fa-angle-double-right"></i>
+                                </button>
+                            </div>
+                            <div class="comments-actions-right">
+                                <select id="pageSizeSelect" class="page-size-select">
+                                    <option value="10">10 per page</option>
+                                    <option value="25" selected>25 per page</option>
+                                    <option value="50">50 per page</option>
+                                    <option value="100">100 per page</option>
+                                </select>
+                                <button class="btn-icon" id="refreshCommentsBtn" title="Refresh comments">
+                                    <i class="fas fa-sync"></i>
+                                </button>
+                                <button class="btn-icon" id="exportCommentsBtn" title="Export comments">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card View -->
+                    <div id="cardView" class="comments-cards">
+                        <div class="cards-grid" id="commentsCardsGrid">
+                            <div class="empty-state">
+                                <i class="fas fa-comments"></i>
+                                <p>No comments available. Upload data to get started.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Table View -->
+                    <div id="tableView" class="comments-table-container" style="display: none;">
+                        <div class="table-wrapper">
+                            <table id="commentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Clause</th>
+                                        <th>Sentiment</th>
+                                        <th>Intent</th>
+                                        <th>Summary</th>
+                                        <th>Text</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commentsTableBody">
+                                    <tr class="empty-row">
+                                        <td colspan="7">
+                                            <div class="empty-state">
+                                                <i class="fas fa-comments"></i>
+                                                <p>No comments available. Upload data to get started.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination Footer -->
+                    <div class="pagination-footer">
+                        <div class="pagination-info">
+                            <span id="paginationInfo">Showing 0 to 0 of 0 comments</span>
+                        </div>
+                        <div class="pagination-controls-footer">
+                            <button class="btn-icon" id="firstPageBtnFooter" title="First page" disabled>
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <button class="btn-icon" id="prevPageBtnFooter" title="Previous page" disabled>
+                                <i class="fas fa-angle-left"></i>
+                            </button>
+                            <div class="page-numbers" id="pageNumbers">
+                                <button class="page-number active">1</button>
+                            </div>
+                            <button class="btn-icon" id="nextPageBtnFooter" title="Next page" disabled>
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                            <button class="btn-icon" id="lastPageBtnFooter" title="Last page" disabled>
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 eConsultation AI. Powered by advanced machine learning.</p>
+                <div class="footer-links">
+                    <a href="#" id="apiDocsLink">API Documentation</a>
+                    <a href="#" id="githubLink">GitHub</a>
+                    <a href="#" id="supportLink">Support</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirm Action</h3>
+                <button class="btn-icon modal-close" id="modalCloseBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+                <button class="btn btn-danger" id="modalConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="static/js/dashboard.js"></script>
+</body>
+</html>

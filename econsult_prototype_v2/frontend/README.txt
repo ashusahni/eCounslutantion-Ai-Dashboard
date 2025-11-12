@@ -1,0 +1,1 @@
+The frontend is built-in at /ui. No separate setup needed.
